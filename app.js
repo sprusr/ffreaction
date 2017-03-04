@@ -7,6 +7,8 @@ const express = require('express')
 const multer  = require('multer')
 const bodyParser = require('body-parser')
 
+const aws = require('./scripts/aws')
+
 const app = express()
 
 const algolia = algoliasearch(config.algolia.key, config.algolia.secret)
