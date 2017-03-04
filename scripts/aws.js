@@ -16,17 +16,15 @@ function checksum (str) {
 }
 
 module.exports = {
-  //@Param file: base64data
+  //@Param file: Buffer
   upload: function(file){
     let data = {Key: checksum(file), Body: file};
     s3.putObject(data, function(err, data){
-      if (err)
-        { console.log('Error uploading data: ', data);
-        } else {
-          console.log('succesfully uploaded the image!');
+      if (err){return err}
+      else {
+          return 'https://hackupc.s3.amazonaws.com/' + data.Key
         }
     });
-
   }
 
 }
