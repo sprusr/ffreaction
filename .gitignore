@@ -65,6 +65,3 @@ typings/
 
 # Config file
 config.js
-
-# Uploads folder
-static/images/
