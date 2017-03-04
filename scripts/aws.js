@@ -19,12 +19,13 @@ module.exports = {
   //@Param file: Buffer
   upload: function(file){
     let data = {Key: checksum(file), Body: file};
-    s3.putObject(data, function(err, data){
-      if (err){return err}
-      else {
-          return 'https://hackupc.s3.amazonaws.com/' + data.Key
-        }
-    });
+    return new Promise( (resolve, reject)=>{
+      s3.putObject(data, function(err, data){
+        if (err) return reject(err)
+        resolve('https://hackupc.s3.amazonaws.com/' + data.Key)
+      });
+    })
+
   }
 
 }
