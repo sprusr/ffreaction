@@ -1,70 +1,80 @@
 'use strict'
 
 const config = require('./config')
-const mongoose = require('mongoose')
 const algoliasearch = require('algoliasearch')
 const Clarifai = require('clarifai')
 const express = require('express')
-const app = express()
+const multer  = require('multer')
+const bodyParser = require('body-parser')
 
-mongoose.connect('mongodb://localhost/ffreaction')
-const Image = mongoose.model('Image', {
-  title: String,
-  tags: [String],
-  data: Buffer
-})
+const app = express()
 
 const algolia = algoliasearch(config.algolia.key, config.algolia.secret)
 const imageIndex = algolia.initIndex('ffreaction')
+
+const upload = multer({ dest: 'static/images' })
 
 //let clarifai = new Clarifai.App('{clientId}', '{clientSecret}')
 
 const api = express.Router()
 
 api.get('/images', (req, res) => {
-  res.send('Search the images')
-})
-
-api.get('/image/:id', (req, res) => {
-  res.send('Just image ' + req.params.id)
-})
-
-api.put('/image/:id', (req, res) => {
-  res.send('Update image ' + req.params.id)
-})
-
-api.delete('/image/:id', (req, res) => {
-  res.send('Delete image  ' + req.params.id)
-})
-
-api.post('/image', (req, res) => {
-  let newImage = {
-    title: req.body.title,
-    tags: req.body.tags.split(','),
-    data: req.body.imageData
-  }
-
-  let image = new Image(newImage)
-  image.save((err) => {
+  imageIndex.search(req.body.q, (err, content) => {
     if (err) {
       console.error(err)
     } else {
-      index.addObjects([{
-        title: image.title,
-        tags: image.tags,
-        objectID: image._id
-      }], (err, content) => {
-        if (err) {
-          console.error(err)
-        } else {
-          res.json({
-            id: image._id
-          })
-        }
-      })
+      res.json(content.hits)
     }
   })
 })
+
+api.get('/image/:id', (req, res) => {
+  imageIndex.getObject(req.params.id, (err, content) => {
+    res.json(content)
+  })
+})
+
+api.put('/image/:id', (req, res) => {
+  let updatedImage = {
+    objectID: req.params.id
+  }
+
+  if(req.body.title) {
+    updatedImage.title = req.body.title
+  }
+
+  if(req.body.tags) {
+    updatedImage.tags = req.body.tags.split(',')
+  }
+
+  index.saveObjects([updatedImage], (err, content) => {
+    res.json(content)
+  })
+})
+
+api.delete('/image/:id', (req, res) => {
+  index.deleteObjects([req.params.id], (err, content) => {
+    res.json(content)
+  })
+})
+
+api.post('/image', upload.single('imageData'), (req, res) => {
+  console.log(req.file)
+  imageIndex.addObjects([{
+    title: req.body.title,
+    tags: req.body.tags.split(','),
+    path: req.file.path
+  }], (err, content) => {
+    if (err) {
+      console.error(err)
+    } else {
+      res.json({id: content.objectIDs[0]})
+    }
+  })
+})
+
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json())
 
 app.use('/api', api)
 
