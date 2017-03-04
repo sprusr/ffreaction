@@ -1,0 +1,25 @@
+{
+  "name": "ffreaction",
+  "version": "0.0.1",
+  "description": "Fast Find Reaction GIFs",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sprusr/ffreaction.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sprusr/ffreaction/issues"
+  },
+  "homepage": "https://github.com/sprusr/ffreaction#readme",
+  "dependencies": {
+    "algoliasearch": "^3.21.1",
+    "clarifai": "^2.1.3-dev",
+    "express": "^4.15.0",
+    "mongoose": "^4.8.5"
+  }
+}
