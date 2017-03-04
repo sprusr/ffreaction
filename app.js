@@ -68,6 +68,8 @@ api.post('/image', (req, res) => {
 
 app.use('/api', api)
 
-app.listen(8000, () => {
+app.use(express.static('static'))
+
+app.listen(8080, () => {
   console.log('Listening')
 })
