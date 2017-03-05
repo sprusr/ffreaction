@@ -5,7 +5,6 @@ const Clarifai = require('clarifai')
 const express = require('express')
 const multer  = require('multer')
 const bodyParser = require('body-parser')
-
 const aws = require('./scripts/aws')
 
 const app = express()
@@ -13,7 +12,8 @@ const app = express()
 const algolia = algoliasearch(process.env.algoliakey, process.env.algoliasecret)
 const imageIndex = algolia.initIndex('ffreaction')
 
-const upload = multer({ dest: 'static/images' })
+const storage = multer.memoryStorage()
+const upload = multer({ storage: storage })
 
 //let clarifai = new Clarifai.App('{clientId}', '{clientSecret}')
 
@@ -60,17 +60,21 @@ api.delete('/image/:id', (req, res) => {
 })
 
 api.post('/image', upload.single('imageData'), (req, res) => {
-  console.log(req.file)
-  imageIndex.addObjects([{
-    title: req.body.title,
-    tags: req.body.tags.split(','),
-    path: req.file.path
-  }], (err, content) => {
-    if (err) {
-      console.error(err)
-    } else {
-      res.json({id: content.objectIDs[0]})
-    }
+  aws.upload(req.file.buffer).then((url) => {
+    console.log(url)
+    imageIndex.addObjects([{
+      title: req.body.title,
+      tags: req.body.tags.split(','),
+      path: url
+    }], (err, content) => {
+      if (err) {
+        console.error(err)
+      } else {
+        res.json({id: content.objectIDs[0]})
+      }
+    })
+  }).catch((err) => {
+    console.log(err)
   })
 })
 

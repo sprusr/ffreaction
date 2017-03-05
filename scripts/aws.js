@@ -4,7 +4,7 @@ const crypto = require('crypto')
 
 
 // Create S3 service object
-var s3 = new AWS.S3( { params: {Bucket: 'hackupc'} });
+var s3 = new AWS.S3( { params: {Bucket: 'hackupc'} })
 
 function checksum (str) {
     return crypto
@@ -15,15 +15,13 @@ function checksum (str) {
 
 module.exports = {
   //@Param file: Buffer
-  upload: function(file){
-    let data = {Key: checksum(file), Body: file};
-    return new Promise( (resolve, reject)=>{
-      s3.putObject(data, function(err, data){
+  upload: function(file) {
+    let data = {Key: checksum(file), Body: file}
+    return new Promise((resolve, reject) => {
+      s3.putObject(data, (err, result) => {
         if (err) return reject(err)
         resolve('https://hackupc.s3.amazonaws.com/' + data.Key)
-      });
+      })
     })
-
   }
-
 }
