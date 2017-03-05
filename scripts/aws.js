@@ -1,7 +1,7 @@
 // Load the SDK for JavaScript
 const AWS = require('aws-sdk')
 const crypto = require('crypto')
-const fileType = require('file-type');
+const fileType = require('file-type')
 
 
 
@@ -19,7 +19,7 @@ module.exports = {
   //@Param file: Buffer
   upload: function(file) {
     let data = {Key: checksum(file), Body: file}
-    let ext = fileType(buffer);
+    let ext = fileType(file)
     return new Promise((resolve, reject) => {
       s3.putObject(data, (err, result) => {
         if (err) return reject(err)
