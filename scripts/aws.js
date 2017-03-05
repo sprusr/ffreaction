@@ -18,12 +18,12 @@ function checksum (str) {
 module.exports = {
   //@Param file: Buffer
   upload: function(file) {
-    let data = {Key: checksum(file), Body: file}
     let ext = fileType(file)
+    let data = {Key: checksum(file) + '.' + ext.ext, Body: file}
     return new Promise((resolve, reject) => {
       s3.putObject(data, (err, result) => {
         if (err) return reject(err)
-        resolve('https://hackupc.s3.amazonaws.com/' + data.Key + '.' + ext.ext)
+        resolve('https://hackupc.s3.amazonaws.com/' + data.Key)
       })
     })
   }
