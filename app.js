@@ -1,6 +1,6 @@
 'use strict'
 
-const config = require('os.homedir()/config')
+const config = require('./config')
 const algoliasearch = require('algoliasearch')
 const Clarifai = require('clarifai')
 const express = require('express')
