@@ -23,7 +23,7 @@ module.exports = {
     return new Promise((resolve, reject) => {
       s3.putObject(data, (err, result) => {
         if (err) return reject(err)
-        resolve('https://hackupc.s3.amazonaws.com/' + data.Key + ext.ext)
+        resolve('https://hackupc.s3.amazonaws.com/' + data.Key + '.' + ext.ext)
       })
     })
   }
