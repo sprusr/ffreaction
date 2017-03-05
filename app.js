@@ -1,6 +1,5 @@
 'use strict'
 
-const config = require('./config')
 const algoliasearch = require('algoliasearch')
 const Clarifai = require('clarifai')
 const express = require('express')
@@ -11,7 +10,7 @@ const aws = require('./scripts/aws')
 
 const app = express()
 
-const algolia = algoliasearch(config.algolia.key, config.algolia.secret)
+const algolia = algoliasearch(process.env.algoliakey, process.env.secret)
 const imageIndex = algolia.initIndex('ffreaction')
 
 const upload = multer({ dest: 'static/images' })

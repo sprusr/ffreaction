@@ -3,7 +3,7 @@ const conf = require('../config.js')
 const AWS = require('aws-sdk')
 const crypto = require('crypto')
 
-AWS.config.loadFromPath(__dirname + '/../aws.json');
+AWS.config = new AWS.Config()
 
 // Create S3 service object
 var s3 = new AWS.S3( { params: {Bucket: 'hackupc'} });
