@@ -81,6 +81,6 @@ app.use('/api', api)
 
 app.use(express.static('static'))
 
-app.listen(8080, () => {
+app.listen(process.env.PORT, () => {
   console.log('Listening')
 })
