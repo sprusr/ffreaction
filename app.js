@@ -6,6 +6,7 @@ const express = require('express')
 const multer  = require('multer')
 const bodyParser = require('body-parser')
 const aws = require('./scripts/aws')
+const clarifai = require('./scripts/clarifai-tagging')
 
 const app = express()
 
@@ -54,7 +55,7 @@ api.put('/image/:id', (req, res) => {
 })
 
 api.delete('/image/:id', (req, res) => {
-  index.deleteObjects([req.params.id], (err, content) => {
+  imageIndex.deleteObjects([req.params.id], (err, content) => {
     res.json(content)
   })
 })
@@ -62,20 +63,24 @@ api.delete('/image/:id', (req, res) => {
 api.post('/image', upload.single('imageData'), (req, res) => {
   aws.upload(req.file.buffer).then((url) => {
     console.log(url)
-    imageIndex.addObjects([{
-      title: req.body.title,
-      tags: req.body.tags.split(','),
-      path: url
-    }], (err, content) => {
-      if (err) {
-        console.error(err)
-      } else {
-        res.json({id: content.objectIDs[0]})
-      }
+    clarifai.predictTags(url).then((clarifaiTags) => {
+      imageIndex.addObjects([{
+        title: req.body.title,
+        tags: req.body.tags.split(','),
+        predictions: clarifaiTags,
+        path: url
+      }], (err, content) => {
+        if (err) {
+          console.error(err)
+        } else {
+          res.json({id: content.objectIDs[0]})
+        }
+      })
+    }).catch((err) => {
+      console.log(err)
     })
-  }).catch((err) => {
-    console.log(err)
-  })
+    })
+
 })
 
 app.use(bodyParser.urlencoded({ extended: false }))
