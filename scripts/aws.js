@@ -19,7 +19,7 @@ module.exports = {
   //@Param file: Buffer
   upload: function(file) {
     let ext = fileType(file)
-    let data = {Key: checksum(file) + '.' + ext.ext, Body: file, ContentType: ext.mime}
+    let data = {Key: checksum(file) + '.' + ext.ext, Body: file, ContentType: ext.mime, ACL: 'public-read'}
     return new Promise((resolve, reject) => {
       s3.putObject(data, (err, result) => {
         if (err) return reject(err)
