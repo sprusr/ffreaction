@@ -1,5 +1,4 @@
 // Load the SDK for JavaScript
-const conf = require('../config.js')
 const AWS = require('aws-sdk')
 const crypto = require('crypto')
 

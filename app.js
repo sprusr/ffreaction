@@ -10,7 +10,7 @@ const aws = require('./scripts/aws')
 
 const app = express()
 
-const algolia = algoliasearch(process.env.algoliakey, process.env.secret)
+const algolia = algoliasearch(process.env.algoliakey, process.env.algoliasecret)
 const imageIndex = algolia.initIndex('ffreaction')
 
 const upload = multer({ dest: 'static/images' })
