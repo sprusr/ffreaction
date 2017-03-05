@@ -1,16 +1,16 @@
 'use strict'
 
-const config = require('./config')
 const algoliasearch = require('algoliasearch')
 const Clarifai = require('clarifai')
 const express = require('express')
 const multer  = require('multer')
 const bodyParser = require('body-parser')
 const aws = require('./scripts/aws')
+const clarifai = require('./scripts/clarifai-tagging')
 
 const app = express()
 
-const algolia = algoliasearch(config.algolia.key, config.algolia.secret)
+const algolia = algoliasearch(process.env.algoliakey, process.env.algoliasecret)
 const imageIndex = algolia.initIndex('ffreaction')
 
 const storage = multer.memoryStorage()
@@ -55,7 +55,7 @@ api.put('/image/:id', (req, res) => {
 })
 
 api.delete('/image/:id', (req, res) => {
-  index.deleteObjects([req.params.id], (err, content) => {
+  imageIndex.deleteObjects([req.params.id], (err, content) => {
     res.json(content)
   })
 })
@@ -63,20 +63,23 @@ api.delete('/image/:id', (req, res) => {
 api.post('/image', upload.single('imageData'), (req, res) => {
   aws.upload(req.file.buffer).then((url) => {
     console.log(url)
-    imageIndex.addObjects([{
-      title: req.body.title,
-      tags: req.body.tags.split(','),
-      path: url
-    }], (err, content) => {
-      if (err) {
-        console.error(err)
-      } else {
-        res.json({id: content.objectIDs[0]})
-      }
+    clarifai.predictTags(url).then((clarifaiTags) => {
+      imageIndex.addObjects([{
+        title: req.body.title,
+        tags: req.body.tags.split(','),
+        predictions: clarifaiTags,
+        path: url
+      }], (err, content) => {
+        if (err) {
+          console.error(err)
+        } else {
+          res.json({id: content.objectIDs[0]})
+        }
+      })
+    }).catch((err) => {
+      console.log(err)
     })
-  }).catch((err) => {
-    console.log(err)
-  })
+    })
 })
 
 app.use(bodyParser.urlencoded({ extended: false }))
@@ -86,6 +89,6 @@ app.use('/api', api)
 
 app.use(express.static('static'))
 
-app.listen(8080, () => {
+app.listen(process.env.PORT, () => {
   console.log('Listening')
 })
